@@ -12,7 +12,9 @@ import { checkUsername } from 'modules/user/redux';
 import registerValidation from './registerValidation';
 
 export default (props) => {
+
   const styles = require('./RegisterForm.scss');
+
   const renderVerification = ({ input, meta: { submitFailed, error } }) => {
     const icUpload = require('../assets/ic_upload.png');
     let label;
@@ -41,8 +43,9 @@ export default (props) => {
                 {!input.value ? <h3 key='1'>{label}</h3> : null }
                 {input.value ? <h3 className='text-success'>Credentials ready!</h3> : null }
               </div>
-              <label className={styles.credentialLabel} htmlFor={input.name} />
             </div>
+            {error && submitFailed && <div style={{display: 'block'}} className="invalid-feedback"><strong>{error}</strong></div>}
+            <label className={styles.credentialLabel} htmlFor={input.name} />
           </div>
         </div>
       </Dropzone>

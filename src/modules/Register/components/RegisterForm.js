@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import {
   touch, startAsyncValidation, stopAsyncValidation,
-  reduxForm, Field, propTypes, change
+  reduxForm, Field, propTypes, change, SubmissionError
 } from 'redux-form';
 import { Helmet } from 'react-helmet';
 import Dropzone from 'react-dropzone';
@@ -46,7 +46,9 @@ class RegisterForm extends Component {
   }
 
   fail = (err) => {
-    console.log(err);
+    const error = {};
+    error[Object.keys(err.errors)[0]] = err.message;
+    throw new SubmissionError(error);
   }
 
   onDrop = (files) => {
