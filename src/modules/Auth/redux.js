@@ -177,13 +177,17 @@ export function login(data) {
     .then(({token, user}) => {
       debugger;
       dispatch({type: LOGIN_SUCCESS, token, user});
-      socket.connect();
-      const socketId = socket.io.engine.id;
-      return app.authenticate({
-        strategy: 'jwt',
-        accessToken: token,
-        socketId
-      });
+      return new Promise((resolve) => {
+        socket.connect();
+        socket.on('connect', () => {
+          const socketId = socket.io.engine.id;
+          resolve(app.authenticate({
+            strategy: 'jwt',
+            accessToken: token,
+            socketId
+          }));
+        })
+      })
     })
     .catch(catchValidation)
   }
