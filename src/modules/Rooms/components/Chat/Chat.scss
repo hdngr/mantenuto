@@ -3,13 +3,13 @@
 
 .Chat {
   position: absolute;
-  height: 100%;
+  max-height: 100%;
   display: flex;
   flex-direction: column;
   width: 100%;
   //overflow-y: scroll;
   // height: 250px;
-  background-color: $brand-darker-gray;
+  background-color: $brand-white;
 
   .ChatHeader {
     display: flex;
@@ -31,8 +31,8 @@
 .MessageInput {
   color: $brand-black;
   textarea {
-    border-top: $brand-black 1px solid;
+    border-top: $brand-gray 1px solid;
     border-radius: 0;
-    background-color: $brand-darker-gray;
+    background-color: $brand-white;
   }
 }

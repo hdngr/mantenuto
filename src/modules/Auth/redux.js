@@ -166,7 +166,6 @@ function saveAuth(response) {
 
 export function login(data) {
   return (dispatch) => {
-    debugger;
     dispatch({ type: LOGIN });
     return restApp.authenticate({
       strategy: 'local',
@@ -175,7 +174,6 @@ export function login(data) {
     })
     .then(saveAuth)
     .then(({token, user}) => {
-      debugger;
       dispatch({type: LOGIN_SUCCESS, token, user});
       return new Promise((resolve) => {
         socket.connect();
