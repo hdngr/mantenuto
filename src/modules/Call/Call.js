@@ -96,6 +96,10 @@ export class CallController extends Component {
   }
 
   render() {
+    debugger;
+    if(this.props.location.pathname.split('/')[1] !== 'rooms') {
+      return null;
+    }
     return (
       <div>
         {this.props.makingCall ?
@@ -120,7 +124,8 @@ export class CallController extends Component {
 
 const mapStateToProps = (state) => {
   const peer = state.rooms.peer;
-  return { ...state.calls, peer }
+  const location = state.routing.locationBeforeTransitions;
+  return { ...state.calls, peer, location }
 };
 
 export default connect(mapStateToProps, {

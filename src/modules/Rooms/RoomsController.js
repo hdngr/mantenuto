@@ -15,6 +15,7 @@ import {
   setIsTalker,
   setIsListener,
 
+  checkIn,
   checkInTalker,
   checkInListener,
 
@@ -47,12 +48,12 @@ export class RoomsControllerComponent extends Component {
   componentDidMount() {
     const roomSlug = this.props.params.slug;
     this.props.loadRoom(roomSlug)
-      .then(this.checkIn)
-      .catch((err) => {
-        if(err) {
-          this.props.notifSend({kind: 'danger', message: 'There is a problem with this room.  Check the url!'});
-        }
-      });
+      .then(() => this.checkIn(roomSlug))
+      // .catch((err) => {
+      //   if(err) {
+      //     this.props.notifSend({kind: 'danger', message: 'There is a problem with this room.  Check the url!'});
+      //   }
+      // });
     this.registerListeners();
   }
 
@@ -68,31 +69,41 @@ export class RoomsControllerComponent extends Component {
   }
 
   registerListeners() {
+    const roomSlug = this.props.params.slug;
     const roomService = app.service('rooms');
+    socket.on('reconnect', () => {
+      debugger;
+      this.checkIn(roomSlug);
+    });
     roomService.on('patched', (room) => {
+      debugger;
       this.props.roomPatched(room);
     });
   }
 
-  checkIn = () => {
-    this.props.updateUser(this.props.userId, { engaged: true });
-    if(this.props.isTalker) {
-      this.checkInTalker();
-    }
-    if(this.props.isListener) {
-      this.checkInListener();
-    }
+  checkIn = (roomSlug) => {
+    // TODO: do this on back end
+    // this.props.updateUser(this.props.userId, { engaged: true });
+    // const roomSlug = this.props.params.slug;
+    // this.props.checkIn(roomSlug);
+    // if(this.props.isTalker) {
+    //   this.checkInTalker();
+    // }
+    // if(this.props.isListener) {
+    //   this.checkInListener();
+    // }
+    this.props.checkIn(roomSlug);
   }
 
-  checkInTalker = () => {
-    const roomSlug = this.props.params.slug;
-    this.props.checkInTalker(roomSlug);
-  }
-
-  checkInListener = () => {
-    const roomSlug = this.props.params.slug;
-    this.props.checkInListener(roomSlug);
-  }
+  // checkInTalker = () => {
+  //   const roomSlug = this.props.params.slug;
+  //   this.props.checkInTalker(roomSlug);
+  // }
+  //
+  // checkInListener = () => {
+  //   const roomSlug = this.props.params.slug;
+  //   this.props.checkInListener(roomSlug);
+  // }
 
   checkout = (event) => {
     event.preventDefault();
@@ -127,8 +138,6 @@ const mapStateToProps = (state) => {
     isTalker,
     isListener,
     peer,
-    // isRoomParsed,
-    // peerCheckedIn,
     loaded,
     error
   } = state.rooms;
@@ -139,7 +148,6 @@ const mapStateToProps = (state) => {
     isTalker,
     isListener,
     loaded,
-    // peerCheckedIn,
     peer,
     user,
     room,
@@ -155,6 +163,7 @@ export default connect(mapStateToProps, {
   setIsTalker,
   setIsListener,
   updateUser,
+  checkIn,
   checkInTalker,
   checkInListener,
   checkOutTalker,

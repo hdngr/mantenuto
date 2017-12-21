@@ -144,7 +144,7 @@ export function socketAuth() {
     const token = getState().auth.token;
     dispatch({ type: TRIED_SOCKET_AUTH });
     const errorHandler = error => {
-      console.error(err);
+      console.error(error);
       const socketId = socket.io.engine.id;
       dispatch(jwtLogin(token, app, socketId))
     };

@@ -1,10 +1,10 @@
-import feathers from 'feathers/client';
-import hooks from 'feathers-hooks';
+import feathers from '@feathersjs/feathers';
+// import hooks from 'feathers-hooks';
 import io from 'socket.io-client';
 import rest from 'feathers-rest/client';
 // const socketio = require('feathers-socketio/client');
-import socketio from 'feathers-socketio/client';
-import authentication from 'feathers-authentication-client';
+import socketio from '@feathersjs/socketio-client';
+import authentication from '@feathersjs/authentication-client';
 import superagent from 'superagent';
 
 const storage = __SERVER__ ? require('localstorage-memory') : window.localStorage; // eslint-disable-line
@@ -18,7 +18,7 @@ export const socket = io(apiEndpoint, { path: '/ws', autoConnect: false });
 
 const configureApp = (transport) => feathers()
       .configure(transport)
-      .configure(hooks())
+      // .configure(hooks())
       .configure(authentication({ storage,
         header: 'Authorization', // default
         path: '/auth', // the server side authentication service path

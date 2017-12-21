@@ -5,12 +5,10 @@ const LOAD_ROOM_SUCCESS = 'rooms/LOAD_ROOM_SUCCESS';
 const LOAD_ROOM_FAIL = 'rooms/LOAD_ROOM_FAIL';
 
 const CHECKIN = 'rooms/CHECKIN';
-const CHECKIN_SUCCESS = 'rooms/CHECKIN_SUCCESS';
-const CHECKIN_FAIL = 'rooms/CHECKIN_FAIL';
+const CHECKED_IN = 'rooms/CHECKED_IN';
 
 const CHECKOUT = 'rooms/CHECKOUT';
-const CHECKOUT_SUCCESS = 'rooms/CHECKOUT_SUCCESS';
-const CHECKOUT_FAIL = 'rooms/CHECKOUT_FAIL';
+const CHECKED_OUT = 'rooms/CHECKED_OUT';
 
 const SET_IS_TALKER = 'rooms/SET_IS_TALKER';
 const SET_IS_LISTENER = 'rooms/SET_IS_LISTENER';
@@ -42,7 +40,8 @@ const initialState = {
   videoOn: false, //TODO - depricate, use camerOn instead
   loading: false, // if room is loading
   loaded: false, // if room is loaded
-  userCheckingIn: false, // if user is checking in
+  userCheckingOut: false, // user emits 'check out' event
+  userCheckingIn: false, // user has emitted 'check in ' event
   userCheckedIn: false, // if user is checked in
   peerCheckedIn: false, // if peer is checked in
   isTalker: false, // if user is talker
@@ -92,39 +91,39 @@ export default (state = initialState, action = {}) => {
     case CHECKIN:
       return {
         ...state,
-        checkingIn: true
+        userCheckingIn: true
       };
-    case CHECKIN_SUCCESS:
+    case CHECKED_IN:
       return {
         ...state,
-        checkingIn: false,
-        checkedIn: true
+        // checkingIn: false,
+        userCheckedIn: true
       };
-    case CHECKIN_FAIL:
-      return {
-        ...state,
-        checkingIn: false,
-        checkedIn: false,
-        error: action.error
-      };
+    // case CHECKIN_FAIL:
+    //   return {
+    //     ...state,
+    //     checkingIn: false,
+    //     checkedIn: false,
+    //     error: action.error
+    //   };
     case CHECKOUT:
       return {
         ...state,
-        checkingOut: true
+        userCheckingOut: true
       };
-    case CHECKOUT_SUCCESS:
+    case CHECKED_OUT:
       return {
         ...state,
-        userCheckingOut: false,
+        // userCheckingOut: false,
         userCheckedIn: false
       };
-    case CHECKOUT_FAIL:
-      return {
-        ...state,
-        userCheckingOut: false,
-        userCheckedIn: false,
-        error: action.error
-      };
+    // case CHECKOUT_FAIL:
+    //   return {
+    //     ...state,
+    //     userCheckingOut: false,
+    //     userCheckedIn: false,
+    //     error: action.error
+    //   };
     case PEER_CHECKED_OUT:
     case PEER_CHECKED_IN:
       return {
@@ -226,8 +225,12 @@ function parseRoom(room) {
     const userId = state.auth.user;
     let peer;
     let peerCheckedIn;
+    let userCheckedIn;
     if (userId === room.talker._id) {
       dispatch(setIsTalker());
+      if(room.talkerCheckedIn) {
+        userCheckedIn = true;
+      }
       peer = room.listener;
       if(room.listenerCheckedIn) {
         peerCheckedIn = true;
@@ -235,29 +238,53 @@ function parseRoom(room) {
     }
     if (userId === room.listener._id) {
       dispatch(setIsListener());
+      if(room.listenerCheckedIn) {
+        userCheckedIn = true;
+      }
       if(room.talkerCheckedIn) {
         peerCheckedIn = true;
       }
       peer = room.talker;
     }
-    // this.checkIn();
+    if(userCheckedIn) {
+      dispatch({ type: CHECKED_IN });
+    }
     dispatch(setPeer(peer));
-    dispatch({type: PARSE_ROOM, room, peerCheckedIn})
+    dispatch({type: PARSE_ROOM, room, peerCheckedIn, userCheckedIn})
   }
 }
 
-function checkIn(slug, patch) {
+export function checkIn(roomSlug) {
   return (dispatch) => {
-    return dispatch({
-      types: [
-        CHECKIN,
-        CHECKIN_SUCCESS,
-        CHECKIN_FAIL
-      ],
-      promise: () => restApp.service('rooms').patch(slug, patch)
-    });
+    dispatch({ type: CHECKIN })
+    socket.emit('check in', roomSlug);
   }
 }
+
+// export function checkinSuccess() {
+//   return {
+//     type: CHECKIN_SUCCESS
+//   }
+// }
+
+// export function checkinFail() {
+//   return {
+//     type: CHECKIN_FAIL
+//   }
+// }
+
+  // return (dispatch) => {
+    // dispatch({ type: CHECKIN });
+  // return {
+  //   types: [
+  //     CHECKIN,
+  //     CHECKIN_SUCCESS,
+  //     CHECKIN_FAIL
+  //   ],
+  //   // promise: () => restApp.service('rooms').patch(slug, patch)
+  //   promise: () => app.service('rooms').patch(slug, patch)
+  // };
+// }
 
 function checkOut(slug, patch) {
   return (dispatch) => {
@@ -272,17 +299,17 @@ function checkOut(slug, patch) {
   };
 }
 
-export function checkInTalker(slug) {
-  return (dispatch) => {
-    dispatch(checkIn(slug, {talkerCheckedIn: true}))
-  }
-}
+// export function checkInTalker(slug) {
+//   return (dispatch) => {
+//     dispatch(checkIn(slug, {talkerCheckedIn: true}))
+//   }
+// }
 
-export function checkInListener(slug) {
-  return (dispatch) => {
-    dispatch(checkIn(slug, {listenerCheckedIn: true}))
-  }
-}
+// export function checkInListener(slug) {
+//   return (dispatch) => {
+//     dispatch(checkIn(slug, {listenerCheckedIn: true}))
+//   }
+// }
 
 
 export function checkOutTalker(slug) {
