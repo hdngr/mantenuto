@@ -26,7 +26,10 @@ const renderRouter = props => (<ReduxAsyncConnect
   render={applyRouterMiddleware(useScroll())}
 />);
 
-ReactGA.initialize('UA-111261926-1');
+if (window.mantenuto.nodeEnv === 'production') {
+  ReactGA.initialize('UA-111261926-1');
+}
+
 
 function logPageView() {
   ReactGA.set({ page: window.location.pathname + window.location.search });

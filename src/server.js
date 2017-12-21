@@ -71,9 +71,10 @@ app.use((req, res) => {
     webpackIsomorphicTools.refresh();
   }
   // pass api end point to client app
+  const nodeEnv = process.env.NODE_ENV;
   const apiEndpoint = process.env.API_ENDPOINT;
   const memoryHistory = createHistory(req.originalUrl);
-  const store = createStore(memoryHistory, client, {__mantenuto: { version, apiEndpoint }});
+  const store = createStore(memoryHistory, client, {__mantenuto: { version, apiEndpoint, nodeEnv }});
   const history = syncHistoryWithStore(memoryHistory, store);
 
   function hydrateOnClient() {
